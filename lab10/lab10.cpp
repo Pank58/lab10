@@ -7,6 +7,9 @@
 #include <windows.h>
 #include <iomanip>
 #include <climits>
+#include <map>
+#include <cstring>
+#include <string>
 
 using namespace std;
 
@@ -30,12 +33,11 @@ vector<vector<int>> generateAdjMatrix(int n, bool isDirected) {
     return adjMatrix;
 }
 
-
 void printMatrix(const vector<vector<int>>& matrix) {
     for (const auto& row : matrix) {
         for (int val : row) {
             if (val == -1) {
-                cout << std::setw(3) << "-"; // Используем "∞" для недостижимых вершин
+                cout << std::setw(3) << "-"; // Используем "-" для недостижимых вершин
             }
             else {
                 cout << std::setw(3) << val;
@@ -45,10 +47,8 @@ void printMatrix(const vector<vector<int>>& matrix) {
     }
 }
 
-// Функция для вывода матрицы
+// Функция для вывода матрицы с максимальным значением в строках
 void printMatrixDir(const vector<vector<int>>& matrix) {
-
-
     for (const auto& row : matrix) {
         int maxDistance = 0;
         for (int val : row) {
@@ -60,7 +60,7 @@ void printMatrixDir(const vector<vector<int>>& matrix) {
         // Выводим строку матрицы
         for (int val : row) {
             if (val == -1) {
-                cout << std::setw(3) << "-"; // Используем "∞" для недостижимых вершин
+                cout << std::setw(3) << "-"; // Используем "-" для недостижимых вершин
             }
             else {
                 cout << std::setw(3) << val;
@@ -76,7 +76,6 @@ void printMatrixDir(const vector<vector<int>>& matrix) {
         }
     }
 }
-
 
 // Алгоритм ПОШ для нахождения расстояний
 vector<int> bfsDistances(const vector<vector<int>>& G, int v) {
@@ -156,27 +155,36 @@ int main(int argc, char* argv[]) {
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
 
-
     bool isDirected = false;   // По умолчанию граф не ориентированный
     int n = 0;               // Количество вершин
 
-    // Обработка параметров командной строки
+    map<string, string> args;
+
+    // Считываем аргументы командной строки
     for (int i = 1; i < argc; ++i) {
-        if (strcmp(argv[i], "-directed") == 0) {
-            isDirected = true;  // Ориентированный графB
+        string arg = argv[i];
+        if (arg == "-directed") {
+            args["directed"] = "true";
         }
-        else if (strcmp(argv[i], "-n") == 0) {
+        else if (arg == "-n") {
             if (i + 1 < argc) {
-                n = atoi(argv[i + 1]);  // Количество вершин
-                i++;  // Пропускаем следующий аргумент
+                args["n"] = argv[i + 1];
+                i++;
             }
         }
     }
 
     // Проверка на указание всех необходимых параметров
-    if (n <= 0) {
+    if (args.find("n") != args.end()) {
+        n = stoi(args["n"]);
+    }
+    else {
         cout << "Ошибка: необходимо указать количество вершин с помощью параметра -n.\n";
         return 1;
+    }
+
+    if (args.find("directed") != args.end() && args["directed"] == "true") {
+        isDirected = true;
     }
 
     // Генерация случайной матрицы смежности
@@ -196,7 +204,6 @@ int main(int argc, char* argv[]) {
 
     // Вывод матрицы расстояний
     cout << "\nМатрица расстояний от каждой вершины до каждой:\n";
-
     printMatrixDir(distanceMatrix);
 
     // Расчет радиуса, диаметра и характеристик вершин
@@ -204,4 +211,3 @@ int main(int argc, char* argv[]) {
     system("pause");
     return 0;
 }
-
