@@ -119,21 +119,32 @@ void calculateGraphProperties(const vector<vector<int>>& distanceMatrix) {
     cout << endl;
 }
 
-int main() {
+int main(int argc, char* argv[]) {
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
 
-    int n;
-    char choice;
 
-    // Ввод количества вершин графа
-    cout << "Введите количество вершин в графе: ";
-    cin >> n;
+    bool isDirected = false;   // По умолчанию граф не ориентированный
+    int n = 0;               // Количество вершин
 
-    // Выбор типа графа
-    cout << "Граф ориентированный? (y/n): ";
-    cin >> choice;
-    bool isDirected = (choice == 'y' || choice == 'Y');
+    // Обработка параметров командной строки
+    for (int i = 1; i < argc; ++i) {
+        if (strcmp(argv[i], "-directed") == 0) {
+            isDirected = true;  // Ориентированный графB
+        }
+        else if (strcmp(argv[i], "-n") == 0) {
+            if (i + 1 < argc) {
+                n = atoi(argv[i + 1]);  // Количество вершин
+                i++;  // Пропускаем следующий аргумент
+            }
+        }
+    }
+
+    // Проверка на указание всех необходимых параметров
+    if (n <= 0) {
+        cout << "Ошибка: необходимо указать количество вершин с помощью параметра -n.\n";
+        return 1;
+    }
 
     // Генерация случайной матрицы смежности
     vector<vector<int>> adjMatrix = generateAdjMatrix(n, isDirected);
@@ -156,6 +167,6 @@ int main() {
 
     // Расчет радиуса, диаметра и характеристик вершин
     calculateGraphProperties(distanceMatrix);
-
+    system("pause");
     return 0;
 }
